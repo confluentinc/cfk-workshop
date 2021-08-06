@@ -1,0 +1,20 @@
+spring:
+  kafka:
+    properties:
+      bootstrap.servers: localhost:9092
+  cloud:
+    stream:
+      function:
+        definition: processWords
+        bindings:
+          # input and output of KStreams topology
+          processWords-in-0: quotes
+          processWords-out-0: counts
+      kafka:
+        streams:
+          binder:
+            applicationId: back2future-word-count
+            configuration:
+              default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+              default.value.serde: org.apache.kafka.common.serialization.Serdes$BytesSerde
+              commit.interval.ms: 1000 

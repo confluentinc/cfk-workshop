@@ -1,0 +1,36 @@
+spring:
+  kafka:
+    properties:
+      bootstrap.servers: localhost:9092
+  #     Confluent Cloud config      
+  #      bootstrap.servers: bootstrap.us-east4.gcp.confluent.cloud:9092
+  #      sasl.mechanism: PLAIN
+  #      sasl.jaas.config: "org.apache.kafka.common.security.plain.PlainLoginModule   required username='blah'   password='blah';"
+  #      security.protocol: SASL_SSL
+  #    streams:
+  #      replication-factor: 3
+  cloud:
+    stream:
+      function:
+        definition: produceData;consumeData
+      bindings:
+        # kafka producer
+        produceData-out-0:
+          binder: kafka
+          destination: quotes
+          producer:
+            partition-count: 4
+            useNativeEncoding: true
+        # kafka consumer
+        consumeData-in-0:
+          binder: kafka
+          destination: quotes
+          group: boot-app-consumer
+      kafka:
+        binder:
+          consumer-properties:
+            key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            value.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+          producer-properties:
+            key.serializer: org.apache.kafka.common.serialization.StringSerializer
+            value.serializer: org.apache.kafka.common.serialization.StringSerializer

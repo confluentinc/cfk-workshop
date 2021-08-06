@@ -1,0 +1,21 @@
+apiVersion: skaffold/v2beta8
+kind: Config
+metadata:
+  name: datagen
+build:
+  artifacts:
+    - image: docker.io/gamussa/back2future
+      context: datagen
+      buildpacks:
+        builder: "gcr.io/buildpacks/builder:v1"
+    - image: docker.io/gamussa/wordcount
+      context: wordcount
+      buildpacks:
+        builder: "gcr.io/buildpacks/builder:v1"
+deploy:
+  kubectl:
+    manifests:
+      - datagen-app-secret.yaml
+      - wordcount-app-secret.yaml
+      - datagen-app-deployment.yaml
+      - wordcount-app-deployment.yaml
