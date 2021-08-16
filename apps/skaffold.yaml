@@ -4,11 +4,11 @@ metadata:
   name: datagen
 build:
   artifacts:
-    - image: docker.io/gamussa/back2future
+    - image: docker.io/my-springone-apps/back2future
       context: datagen
       buildpacks:
         builder: "gcr.io/buildpacks/builder:v1"
-    - image: docker.io/gamussa/wordcount
+    - image: docker.io/my-springone-apps/wordcount
       context: wordcount
       buildpacks:
         builder: "gcr.io/buildpacks/builder:v1"
