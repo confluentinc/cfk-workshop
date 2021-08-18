@@ -162,6 +162,14 @@ kafka-cluster-links --bootstrap-server localhost:9092 --create --link-name datag
 
 TODO: Create mirror topic
 
+## Set up Argo on dev environment
+
+https://tanzu.vmware.com/developer/guides/ci-cd/argocd-gs/
+
+
+## Deploy CFK through Argo
+
+TODO
 
 ## Troubleshoot
 
