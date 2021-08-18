@@ -2,11 +2,17 @@
 
 In this workshop, you will:
 
+- Launch your own Minikube for a local development environment and access an existing Tanzu Kubernetes Grid for production
+- Deploy applications and the Confluent for Kubernetes platform for data in motion across both environments
+- Easily mirror data from the production environment to the development environment
+- Manage infrastructure declaratively and use GitOps to safely update applications
+-See how Tanzu Mission Control is used as a global control plane across both development and production Kubernetes environments
+
 ## The Lab Environment
 
 Your lab environment is an Ubuntu 18.04 server with all pre-requisites installed.
 
-### How to add ssh into the lab machine
+### How to ssh into the lab machine from local machine
 
 Generate a ssh key on your local machine.
 
@@ -60,34 +66,7 @@ cd code
 git clone https://github.com/confluentinc/cfk-workshop.git
 ```
 
-
-## To Organize
-
-### Get the code
-
-```
-cd code
-
-git clone https://github.com/confluentinc/cfk-workshop.git
-
-git clone https://github.com/confluentinc/confluent-kubernetes-examples.git
-```
-
-### Deploy CFK onto minikube
-
-Start minikube cluster
-
-```
-minikube start
-
-minikube status
-  minikube
-  type: Control Plane
-  host: Running
-  kubelet: Running
-  apiserver: Running
-  kubeconfig: Configured
-```
+## Deploy CFK onto minikube
 
 Deploy Confluent for Kubernetes
 
@@ -97,6 +76,9 @@ kubectl create ns confluent
 
 # Set namespace for current context to `confluent`
 kubectl config set-context --current --namespace confluent
+
+# Check your kubectl context
+kubectl config get-contexts
 
 # Add Helm repository
 helm repo add confluentinc https://packages.confluent.io/helm
@@ -113,21 +95,50 @@ NAME                                  READY   STATUS    RESTARTS   AGE
 confluent-operator-66bcf88444-vd5gg   1/1     Running   0          14h
 ```
 
-Deploy a mini Confluent Platform
+You'll deploy Confluent Platform in a single node configuration.
+The representative declarative YAML is here: https://github.com/confluentinc/cfk-workshop/blob/main/dev/confluent-platform-minikube.yaml
 
 ```
-cd /home/ubuntu/code/confluent-kubernetes-examples/quickstart-deploy  
-
-kubectl apply -f confluent-platform-mini.yaml -n confluent
+kubectl apply -f ~/code/cfk-workshop/dev/confluent-platform-minikube.yaml -n confluent
 
 kubectl get pods -w -n confluent
-...
 ```
 
-### Log in and create cluster links
+
+## Build the Spring application
+
+WIP
+
+```
+cd ~/code/cfk-workshop/apps
+
+skaffold build
+```
+
+## Look at production and management cluster
+
+Let's look at Tanzu Mission Control.
+
+Let's look at the prod cluster Control Center.
+
+Let's review the prod cluster declarative YAML
+
+Let's scale up prod cluster
+
+In Tanzu Mission Control, add a dev cluster
+
+## Get data from prod into dev
 
 Cluster links are between two Kafka clusters.
 Created on the destination Kafka cluster.
+
+Add certificate authority truststore for use by CFK
+
+```
+kubectl cp ~/code/dev/truststore.p12 kafka-0:/home/appuser/truststore.p12
+```
+
+Exec in to Kafka pod and create cluster link
 
 ```
 kubectl exec kafka-0 -it bash
@@ -143,31 +154,32 @@ ssl.truststore.location=/home/appuser/truststore.p12
 ssl.truststore.password=mystorepassword
 EOF
 
-cat << EOF > kafka.properties
-bootstrap.servers=kafka.cfk-demo.app:9092
-sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username=devuser password=dev-password;
-sasl.mechanism=PLAIN
-security.protocol=SASL_SSL
-ssl.truststore.location=/Users/rohitbakhshi/dev/confluent/cfk-workshop/truststore.p12
-ssl.truststore.password=mystorepassword
-EOF
-
-kafka-console-producer --bootstrap-server kafka.cfk-demo.app:9092 \
-  --topic elastic-0 \
-  --producer.config kafka.properties
-
-# Crate cluster link
+# Create cluster link
 
 kafka-cluster-links --bootstrap-server localhost:9092 --create --link-name datagen-link --config-file kafka.properties
 
 ```
 
-### move
+TODO: Create mirror topic
 
-```
-scp -i ~/dev/software/security/rohit-confluent-ps /Users/rohitbakhshi/dev/confluent/cfk-workshop/truststore.p12 ubuntu@ehvmdc9yb9vmxgxlw-lnnmzlpejd6gswtzg.labs.strigo.io:truststore.p12
 
-```
+## Troubleshoot
+
+### CFK deployment needs to be restarted
+
+Uninstall deployment
+
+Stop minikube
+
+Start minikube
+
+Re-deploy
+
+
+----
+
+## To Organize
+
 
 ### Create truststore
 
@@ -187,33 +199,3 @@ keytool -import -trustcacerts -noprompt \
 
 /Users/rohitbakhshi/dev/confluent/rohit-cfk-examples/assets/certs/component-certs/generated/ca.pem
 /Users/rohitbakhshi/dev/confluent/rohit-cfk-examples/assets/certs/component-certs/generated/ca.pem
-
-### How to add a ssh key to the lab machine
-
-Generate a ssh key on your local machine.
-
-```
-ssh-keygen
-
-ls -al <where_keys_created>
-  -rw-------   1 me  staff   2.5K Aug 17 13:19 new_key
-  -rw-r--r--   1 me  staff   581B Aug 17 13:19 new_key.pub
-
-cat new_key.pub
-  ssh-rsa <public key content>
-```
-
-On the lab machine, add the public key to authorized_keys file
-
-```
-## Add content to a newline in this file
-vi ~/.ssh/authorized_keys
-```
-
-Now, SSH into the lab machine from your local machine
-
-```
-ssh -i new_key ubuntu@<lab-dynamic-dns-name>
-```
-
-### Trust 
