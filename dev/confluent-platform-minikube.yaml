@@ -11,6 +11,10 @@ spec:
   dataVolumeCapacity: 10Gi
   logVolumeCapacity: 10Gi
   podTemplate:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
     podSecurityContext:
       fsGroup: 1000
       runAsUser: 1000
@@ -39,6 +43,10 @@ spec:
       - "confluent.cluster.link.enable=true"
       - "password.encoder.secret=secret"
   podTemplate:
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
     podSecurityContext:
       fsGroup: 1000
       runAsUser: 1000
@@ -60,6 +68,10 @@ spec:
       - offset.storage.replication.factor=1
       - status.storage.replication.factor=1
   podTemplate:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
     probe:
       liveness:
         periodSeconds: 10
@@ -82,6 +94,10 @@ spec:
     init: confluentinc/confluent-init-container:2.0.0
   dataVolumeCapacity: 10Gi
   podTemplate:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
     probe:
       liveness:
         periodSeconds: 10
@@ -112,6 +128,10 @@ spec:
       - confluent.monitoring.interceptor.topic.replication=1
       - confluent.controlcenter.internal.topics.replication=1
   podTemplate:
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
     probe:
       liveness:
         periodSeconds: 10
@@ -142,6 +162,10 @@ spec:
     application: confluentinc/cp-schema-registry:6.2.0
     init: confluentinc/confluent-init-container:2.0.0
   podTemplate:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
     podSecurityContext:
       fsGroup: 1000
       runAsUser: 1000
