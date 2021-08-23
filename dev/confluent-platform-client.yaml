@@ -17,6 +17,16 @@ spec:
       containers:
       - name: client
         image: confluentinc/cp-kafka:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          kafka-producer-perf-test \
+            --topic ${HOSTNAME}  \
+            --record-size 524288 \
+            --throughput 64 \
+            --producer.config /mnt/kafka.properties \
+            --num-records 230400
         resources:
           requests:
             memory: 512Mi # 768Mi
