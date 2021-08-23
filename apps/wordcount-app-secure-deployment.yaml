@@ -5,8 +5,8 @@ metadata:
   name: counts
   namespace: confluent
 spec:
-  replicas: 1
-  partitionCount: 2
+  replicas: 3
+  partitionCount: 6
   configs:
     cleanup.policy: "delete"
 ---
@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: datagen-quotes
-          image: docker.io/rohit2b/wordcount
+          image: docker.io/gamussa/wordcount
           ports:
             - containerPort: 8080
           env:
