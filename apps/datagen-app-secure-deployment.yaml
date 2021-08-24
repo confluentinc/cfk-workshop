@@ -5,8 +5,8 @@ metadata:
   name: quotes
   namespace: confluent
 spec:
-  replicas: 3
-  partitionCount: 6
+  replicas: 1
+  partitionCount: 2
   configs:
     cleanup.policy: "delete"
 ---
@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: datagen-quotes
-          image: docker.io/gamussa/back2future
+          image: docker.io/rohit2b/datagen
           env:
             - name: SPRING_CONFIG_LOCATION
               value: /mnt/app/application.yaml
