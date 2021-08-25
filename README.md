@@ -12,37 +12,9 @@ In this workshop, you will:
 
 Your lab environment is an Ubuntu 18.04 server with all pre-requisites installed.
 
-### How to ssh into the lab machine from local machine
-
-Generate a ssh key on your local machine.
-
-```
-ssh-keygen
-
-ls -al <where_keys_created>
-  -rw-------   1 me  staff   2.5K Aug 17 13:19 new_key
-  -rw-r--r--   1 me  staff   581B Aug 17 13:19 new_key.pub
-
-cat new_key.pub
-  ssh-rsa <public key content>
-```
-
-On the lab machine, add the public key to authorized_keys file
-
-```
-## Add content to a newline in this file
-vi ~/.ssh/authorized_keys
-```
-
-Now, SSH into the lab machine from your local machine
-
-```
-ssh -i new_key ubuntu@<lab-dynamic-dns-name>
-```
-
 ## Start minikube
 
-Your development environment consists of a functionally complete Confluent Platform deployed to minikube.
+Your development environment will consist of a functionally complete Confluent Platform deployed to minikube.
 
 Minikube is a single node Kubernetes cluster.
 
@@ -129,16 +101,36 @@ In Tanzu Mission Control, add a dev cluster
 
 ## Get data from prod into dev
 
-Cluster links are between two Kafka clusters.
-Created on the destination Kafka cluster.
+We have a production deployment with Confluent Platform on VMWare Tanzu.
 
-Add certificate authority truststore for use by CFK
+In this exercise, you'll pull data from a topic in the production cluster in to your development cluster.
+
+To do this, you will:
+
+- define a Cluster Link between the production cluster and the development cluster
+- create a mirror topic on the development cluster to mirror all data in the production topic in to the mirror topic on the development cluster
+
+Cluster Linking allows you to directly connect clusters together and mirror topics from one cluster to another. 
+Cluster Linking makes it much easier to build multi-datacenter, multi-cluster, and hybrid cloud deployments.
+
+The production cluster has TLS network encryption enabled. In order to connect to it, the development cluster will need to trust the certificate authority used to create the server certificates in production.
+
+Add the certificate authority truststore to be used by the development cluster:
 
 ```
 kubectl cp ~/code/dev/truststore.p12 kafka-0:/home/appuser/truststore.p12
 ```
 
-Exec in to Kafka pod and create cluster link
+You'll create a cluster link to pull data from the production cluster and in to the development cluster.
+In order to do that, you'll need to specify the Kafka properties to connect to the production cluster's Kafka listener.
+
+This configuration includes the following:
+
+- bootstrap.servers: The production cluster's Kafka listener endpoint
+- sasl.jaas.config, sasl.mechanism, security.protocol: The SASL Plain configuration and credentials to use to connect to the production cluster
+- ssl.truststore.location, ssl.truststore.password: The truststore to use in order to trust the production certificate authority
+
+Exec SSH in to the Kafka broker pod and use the CLI tools to create a cluster link:
 
 ```
 kubectl exec kafka-0 -it bash
@@ -160,7 +152,22 @@ kafka-cluster-links --bootstrap-server localhost:9092 --create --link-name datag
 
 ```
 
-TODO: Create mirror topic
+Now that a cluster link is created, you will create a mirror topic on the development cluster.
+A cluster link connects a mirror topic to its source topic. Any messages produced to the source topic are mirrored over the cluster link to the mirror topic.
+Mirror topics are byte-for-byte, offset-preserving asynchronous copies of their source topics. They are read-only; you can consume them the same as any other topic, but you cannot produce into them.
+
+```
+# Create a mirror topic
+
+kafka-topics --bootstrap-server localhost:9092 --create --topic prod-quotes --link-name datagen-link --mirror-topic prod-quotes
+```
+
+### Review data
+
+Log in to Control Center. You had set up a connection to Control Center in the prior exercise. Use the same URL.
+
+Once logged in, navigate to the topic section. You should see the "prod-quotes" topic
+
 
 ## Set up Argo on dev environment
 
