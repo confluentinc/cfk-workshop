@@ -4,14 +4,10 @@ metadata:
   name: datagen
 build:
   artifacts:
-    - image: docker.io/my-springone-apps/back2future
+    - image: docker.io/rohit2b/datagen
       context: datagen
-      buildpacks:
-        builder: "gcr.io/buildpacks/builder:v1"
-    - image: docker.io/my-springone-apps/wordcount
+    - image: docker.io/rohit2b/wordcount
       context: wordcount
-      buildpacks:
-        builder: "gcr.io/buildpacks/builder:v1"
 deploy:
   kubectl:
     manifests:
