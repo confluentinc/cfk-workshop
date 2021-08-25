@@ -1,0 +1,29 @@
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: datagen-topic
+  namespace: confluent
+spec:
+  principal:
+    name: devuser
+    type: user
+  resourcePatterns:
+  - name: prod-quotes
+    patternType: LITERAL
+    resourceType: Topic
+  role: ResourceOwner
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: ConfluentRolebinding
+metadata:
+  name: datagen-consumergroup
+  namespace: confluent
+spec:
+  principal:
+    name: devuser
+    type: user
+  resourcePatterns:
+  - name: boot-app-consumer
+    patternType: LITERAL
+    resourceType: Group
+  role: ResourceOwner
