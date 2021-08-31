@@ -1,0 +1,53 @@
+---
+apiVersion: platform.confluent.io/v1beta1
+kind: KafkaTopic
+metadata:
+  name: quotes
+  namespace: confluent
+spec:
+  replicas: 1
+  partitionCount: 2
+  configs:
+    cleanup.policy: "delete"
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: datagen-quotes
+spec:
+  serviceName: datagen-quotes
+  podManagementPolicy: Parallel
+  replicas: 1
+  selector:
+    matchLabels:
+      app: datagen-quotes
+  template:
+    metadata:
+      labels:
+        app: datagen-quotes
+    spec:
+      containers:
+        - name: datagen-quotes
+          image: docker.io/rohit2b/datagen
+          env:
+            - name: SPRING_CONFIG_LOCATION
+              value: /mnt/app/application.yaml
+          volumeMounts:
+            - name: spring-boot-application-yaml
+              mountPath: /mnt/app
+          resources:
+            requests:
+              memory: 512Mi # 768Mi
+              cpu: 500m # 1000m
+      volumes:
+        - name: spring-boot-application-yaml
+          secret:
+            secretName: spring-boot-application-yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: datagen-quotes
+spec:
+  clusterIP: None
+  
