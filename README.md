@@ -171,12 +171,78 @@ Once logged in, navigate to the topic section. You should see the "prod-quotes" 
 
 ## Set up Argo on dev environment
 
-https://tanzu.vmware.com/developer/guides/ci-cd/argocd-gs/
+First, create a namespace where you will install ArgoCD.
 
+kubectl create namespace argocd
 
-## Deploy CFK through Argo
+Second, apply this install script:
 
-TODO
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+This command will complete quickly, but pods will still be spinning up on the back end. These need to be in a running state before you can move forward. Use the watch command to ensure the pods are running and ready.
+
+watch kubectl get pods -n argocd
+
+Since this is a demo environment, use port-forward to expose a port to the service, and forward it to localhost.
+
+kubectl port-forward --address 0.0.0.0 svc/argocd-server -n argocd 8080:443
+
+In the UI, you will not be able to log in yet. ArgoCD generated a custom password for every deploy. 
+
+The following command will list the pods and format the output to provide just the line you want. It will have the format argocd-server-<number>-<number>.
+
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+
+To log in to the ArgoCD UI, the default username is admin and the default password is the output of the above command.
+
+Log in through the Argo CLI. You will need to accept the server certificate error.
+
+argocd login localhost:8080
+
+Now you'll add the target Kubernetes cluster for ArgoCD to deploy to. This will be the minikube cluster you are on.
+
+Get the Kubernetes contexts:
+
+kubectl config get-contexts -o name
+minikube
+
+Add this context as the target
+
+argocd cluster add minikube
+
+## Deploy CFK through ArgoCD
+
+Create a namespace for the CFK through ArgoCD gitops deployment.
+
+kubectl create ns gitops-confluent
+
+Create a new application, using the ArgoCD UI.
+
+Log in with `admin` username and the password you got from this command:
+
+```
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+```
+
+Click on "New App" in the top left of the UI screen.
+
+Set the application name - for example cfk-minikube.
+
+Select the `default` project.
+
+Keey sync mode as `Manual`.
+
+Set the Github repo URL - `https://github.com/confluentinc/cfk-workshop.git`
+
+Set the path to the `gitops-dev` directory.
+
+Select your target minikube cluster - `https://kubernetes.default.svc`.
+
+Set the target namespace to the one you just created - `gitops-confluent`.
+
+Click "Create".
+
+This will deploy 
 
 ## Troubleshoot
 
