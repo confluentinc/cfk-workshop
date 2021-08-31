@@ -2,7 +2,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: Zookeeper
 metadata:
   name: zookeeper
-  namespace: confluent
+  namespace: gitops-confluent
 spec:
   replicas: 1
   image:
@@ -24,7 +24,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: Kafka
 metadata:
   name: kafka
-  namespace: confluent
+  namespace: gitops-confluent
 spec:
   replicas: 1
   image:
@@ -56,7 +56,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: Connect
 metadata:
   name: connect
-  namespace: confluent
+  namespace: gitops-confluent
 spec:
   replicas: 1
   image:
@@ -86,7 +86,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: KsqlDB
 metadata:
   name: ksqldb
-  namespace: confluent
+  namespace: gitops-confluent
 spec:
   replicas: 1
   image:
@@ -112,7 +112,7 @@ apiVersion: platform.confluent.io/v1beta1
 kind: ControlCenter
 metadata:
   name: controlcenter
-  namespace: confluent
+  namespace: gitops-confluent
 spec:
   replicas: 1
   image:
@@ -147,19 +147,19 @@ spec:
       runAsNonRoot: true
   dependencies:
     schemaRegistry:
-      url: http://schemaregistry.confluent.svc.cluster.local:8081
+      url: http://schemaregistry.gitops-confluent.svc.cluster.local:8081
     ksqldb:
     - name: ksql-dev
-      url: http://ksqldb.confluent.svc.cluster.local:8088
+      url: http://ksqldb.gitops-confluent.svc.cluster.local:8088
     connect:
     - name: connect-dev
-      url:  http://connect.confluent.svc.cluster.local:8083
+      url:  http://connect.gitops-confluent.svc.cluster.local:8083
 ---
 apiVersion: platform.confluent.io/v1beta1
 kind: SchemaRegistry
 metadata:
   name: schemaregistry
-  namespace: confluent
+  namespace: gitops-confluent
 spec:
   replicas: 1
   image:
