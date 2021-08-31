@@ -1,5 +1,3 @@
-namePrefix: gitops-
-
 resources:
 - confluent-platform-minikube.yaml
 - datagen-app-deployment.yaml
